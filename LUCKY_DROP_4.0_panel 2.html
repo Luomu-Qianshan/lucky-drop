@@ -1,0 +1,836 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<title>LUCKY DROP 4.0</title>
+<style>
+:root{
+  --bg:#101827;
+  --panel:#19263a;
+  --panel2:#202f46;
+  --ink:#edf2f8;
+  --muted:#a8b5c7;
+  --gold:#e7bd68;
+  --line:#34445d;
+  --blue:#91b8e8;
+  --green:#9bc9aa;
+  --danger:#e07a7a;
+  --safe-bottom: env(safe-area-inset-bottom, 0px);
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;padding:0;background:radial-gradient(circle at 50% -10%,#263957,#101827 48%);color:var(--ink);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Hiragino Sans GB","Microsoft YaHei",sans-serif;min-height:100%;}
+body{padding-bottom:calc(20px + var(--safe-bottom));}
+main{max-width:980px;margin:0 auto;padding:16px 14px 40px}
+.top{display:flex;justify-content:space-between;align-items:flex-start;gap:12px;flex-wrap:wrap;margin-bottom:4px}
+.brand{letter-spacing:.16em;color:var(--gold);font-size:11px;font-weight:600}
+.sub{color:var(--muted);font-size:13px;margin-top:4px;line-height:1.4}
+h1{font-size:24px;margin:6px 0 0;letter-spacing:.02em}
+.grid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;margin:16px 0}
+@media(min-width:640px){.grid{grid-template-columns:repeat(4,1fr)}}
+.stat,.panel{background:linear-gradient(145deg,var(--panel),#172236);border:1px solid var(--line);border-radius:16px;padding:14px;box-shadow:0 12px 30px #0002}
+.stat small{display:block;color:var(--muted);font-size:12px}
+.num{font-size:24px;font-weight:750;margin-top:6px;font-variant-numeric:tabular-nums;line-height:1.2}
+.unit{font-size:12px;color:var(--muted);margin-left:3px;font-weight:500}
+.layout{display:grid;grid-template-columns:1fr;gap:14px}
+@media(min-width:800px){.layout{grid-template-columns:1.05fr .95fr}}
+.panel h2{font-size:15px;margin:0 0 12px;font-weight:700}
+.panel p{color:var(--muted);font-size:13px;line-height:1.55;margin:8px 0}
+button{
+  border:0;border-radius:12px;padding:13px 16px;
+  background:var(--panel2);color:var(--ink);font-weight:650;
+  cursor:pointer;font-size:14px;min-height:46px;
+  transition:filter .15s,transform .1s;
+  -webkit-user-select:none;user-select:none;
+}
+button:active{transform:scale(0.97)}
+button:hover{filter:brightness(1.12)}
+button:disabled{opacity:.4;cursor:not-allowed;transform:none}
+.primary{background:linear-gradient(135deg,#f1d18a,#c18b3f);color:#182234}
+.secondary{background:linear-gradient(135deg,#7aa2d4,#4a6fa5);color:#fff}
+.ghost{background:transparent;border:1px solid var(--line);color:var(--muted)}
+.rollarea{text-align:center;padding:8px 0 4px}
+.orb{
+  width:160px;height:160px;border-radius:50%;margin:6px auto 14px;
+  background:radial-gradient(circle at 35% 28%,#fff4cb,#e6b95e 34%,#8d5c24 72%,#362719);
+  box-shadow:0 0 0 8px #e6bd6820,0 0 40px #e4b95a55,inset 0 0 20px #fff8;
+  display:flex;align-items:center;justify-content:center;
+  color:#342719;font-size:24px;font-weight:900;letter-spacing:.08em;
+}
+.orb.spin{animation:pulse .45s ease-in-out 2}
+@keyframes pulse{50%{transform:scale(1.06);filter:brightness(1.25)}}
+.result{min-height:48px;font-size:17px;font-weight:750;color:var(--gold);margin:8px 0 12px;line-height:1.35;padding:0 6px}
+.buttons{display:flex;justify-content:center;gap:10px;flex-wrap:wrap}
+.buttons button{min-width:120px;flex:1;max-width:160px}
+label{display:block;color:var(--muted);font-size:12px;margin:10px 0 5px;font-weight:500}
+input,select,textarea{
+  width:100%;background:#101a2a;color:var(--ink);
+  border:1px solid var(--line);border-radius:10px;padding:12px 12px;
+  font:inherit;font-size:15px;-webkit-appearance:none;appearance:none;
+}
+input:focus,select:focus,textarea:focus{outline:none;border-color:var(--gold)}
+select{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8'%3E%3Cpath fill='%23a8b5c7' d='M0 0l6 8 6-8z'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 12px center;padding-right:32px}
+.row{display:flex;gap:10px;align-items:flex-end;flex-wrap:wrap}
+.row>*{flex:1;min-width:120px}
+.progress{height:8px;background:#0e1725;border-radius:99px;overflow:hidden;margin:8px 0 0}
+.bar{height:100%;background:linear-gradient(90deg,#8caccf,#e7bd68);width:0%;transition:width .35s ease}
+.log{max-height:240px;overflow:auto;-webkit-overflow-scrolling:touch}
+.entry{display:flex;justify-content:space-between;gap:12px;border-bottom:1px solid #ffffff10;padding:10px 0;font-size:13px;align-items:flex-start}
+.entry:last-child{border:0}
+.tag{font-size:11px;border:1px solid var(--line);padding:3px 8px;border-radius:99px;color:var(--muted);white-space:nowrap;flex-shrink:0}
+.tools{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}
+.tools button{font-size:13px;padding:11px 14px;min-height:42px}
+.foot{color:var(--muted);font-size:11px;text-align:center;margin:24px 0 8px;line-height:1.5}
+.notice{background:#26344a;border-left:3px solid var(--gold);padding:11px 12px;border-radius:8px;color:#d7e0ec;font-size:12px;line-height:1.6;margin-top:12px}
+.achievements{display:grid;grid-template-columns:1fr;gap:10px;margin-top:8px}
+@media(min-width:480px){.achievements{grid-template-columns:repeat(3,1fr)}}
+.ach{
+  background:#101a2a;border:1px solid var(--line);border-radius:12px;padding:12px;
+  text-align:center;position:relative;overflow:hidden;
+}
+.ach.unlocked{border-color:#c9a04a;background:linear-gradient(160deg,#2a2214,#1a2435)}
+.ach .icon{font-size:22px;margin-bottom:4px;opacity:.35}
+.ach.unlocked .icon{opacity:1}
+.ach .title{font-size:13px;font-weight:700;margin-bottom:2px}
+.ach .desc{font-size:11px;color:var(--muted);line-height:1.4}
+.ach .status{font-size:11px;margin-top:6px;color:var(--muted)}
+.ach.unlocked .status{color:var(--gold)}
+.supply-box{
+  margin-top:12px;padding:14px;border-radius:12px;
+  background:linear-gradient(145deg,#2a2418,#1e2a3d);
+  border:1px solid #c9a04a55;
+}
+.supply-box h3{margin:0 0 8px;font-size:14px;color:var(--gold)}
+.supply-box.disabled{opacity:.55;border-color:var(--line);background:#101a2a}
+.supply-box.disabled h3{color:var(--muted)}
+.hidden{display:none !important}
+.badge-row{display:flex;gap:6px;flex-wrap:wrap;margin-top:6px}
+.mini-badge{font-size:11px;padding:3px 8px;border-radius:99px;border:1px solid var(--line);color:var(--muted)}
+.mini-badge.on{border-color:#c9a04a;color:var(--gold);background:#2a221455}
+#toast{
+  position:fixed;left:50%;bottom:calc(28px + var(--safe-bottom));
+  transform:translateX(-50%) translateY(20px);opacity:0;
+  background:#1c2b42;color:var(--ink);border:1px solid var(--line);
+  padding:12px 18px;border-radius:12px;font-size:14px;font-weight:600;
+  z-index:99;pointer-events:none;transition:all .25s ease;max-width:90%;
+  text-align:center;box-shadow:0 8px 24px #0005;
+}
+#toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+</style>
+</head>
+<body>
+<main>
+  <div class="top">
+    <div>
+      <div class="brand">PERSONAL PROGRESS REWARD SYSTEM</div>
+      <h1>LUCKY DROP 4.0</h1>
+      <div class="sub">每一点进步，都值得一次抽取。</div>
+    </div>
+    <div class="tag" id="periodLabel">本期活动</div>
+  </div>
+
+  <section class="grid">
+    <div class="stat">
+      <small>可用抽数</small>
+      <div class="num" id="balance">0<span class="unit">抽</span></div>
+    </div>
+    <div class="stat">
+      <small>本期幸运值</small>
+      <div class="num" id="luck">0<span class="unit">/ 10</span></div>
+    </div>
+    <div class="stat">
+      <small>SSR 长期保底</small>
+      <div class="num" id="ssr">0<span class="unit">/ 200</span></div>
+      <div class="progress"><div class="bar" id="ssrBar"></div></div>
+    </div>
+    <div class="stat">
+      <small>SR 保底进度</small>
+      <div class="num" id="sr">0<span class="unit">/ 50</span></div>
+      <div class="progress"><div class="bar" id="srBar"></div></div>
+    </div>
+  </section>
+
+  <div class="layout">
+    <!-- 抽奖区 -->
+    <section class="panel">
+      <h2>✦ 随机抽取</h2>
+      <div class="rollarea">
+        <div class="orb" id="orb">LUCKY</div>
+        <div class="result" id="result">等待你的下一次抽取</div>
+        <div class="buttons">
+          <button class="primary" id="rollOne">ROLL × 1</button>
+          <button id="rollTen">ROLL × 10</button>
+        </div>
+        <p style="margin-top:12px">每次消耗 1 抽。十连逐次结算保底，不改变单抽概率。</p>
+      </div>
+      <div class="notice">
+        SSR 基础概率 0.3%；第 151 抽起软保底，第 200 抽必出。<br>
+        SR 保底：连续 49 抽未出 SR/SSR，第 50 抽触发（先判 SSR）。<br>
+        幸运值只做成就记录，不参与任何概率计算。
+      </div>
+    </section>
+
+    <!-- 记录进步 -->
+    <section class="panel">
+      <h2>＋ 记录一次进步</h2>
+      <label for="actionText">做了什么？</label>
+      <input id="actionText" placeholder="例如：英语阅读 15 分钟" autocomplete="off">
+      <div class="row">
+        <div>
+          <label for="actionTier">行动等级 / 抽数</label>
+          <select id="actionTier">
+            <option value="1">微小进步 · +1 抽</option>
+            <option value="2">有效行动 · +2 抽</option>
+            <option value="3">阶段突破 · +3 抽</option>
+            <option value="4">重要突破 · +4 抽</option>
+            <option value="5">重大阶段目标 · +5 抽</option>
+          </select>
+        </div>
+        <div>
+          <label for="luckAdd">额外幸运值</label>
+          <select id="luckAdd">
+            <option value="0">不增加</option>
+            <option value="1">+1 点</option>
+            <option value="2">+2 点</option>
+            <option value="3">+3 点</option>
+          </select>
+        </div>
+      </div>
+      <div class="notice">抽数奖励有效进步；幸运值只在表现特别优秀时额外记录。每日最多 +3，每期最多 10 点。</div>
+      <div class="tools">
+        <button class="primary" id="addAction" style="flex:1">确认记录并领取抽数</button>
+      </div>
+
+      <h2 style="margin-top:22px">本期行动记录</h2>
+      <div class="log" id="actionLog"><p style="color:var(--muted);margin:0">还没有记录。</p></div>
+    </section>
+  </div>
+
+  <!-- 幸运值成就 -->
+  <section class="panel" style="margin-top:14px">
+    <h2>✦ 幸运值成就（独立体系）</h2>
+    <p>幸运值不影响抽奖概率，只用于解锁成就与月度特别补给。</p>
+    <div class="achievements">
+      <div class="ach" id="ach3">
+        <div class="icon">✦</div>
+        <div class="title">初露锋芒</div>
+        <div class="desc">幸运值达到 3 点</div>
+        <div class="status" id="ach3Status">未解锁</div>
+      </div>
+      <div class="ach" id="ach6">
+        <div class="icon">◆</div>
+        <div class="title">稳步前行</div>
+        <div class="desc">幸运值达到 6 点</div>
+        <div class="status" id="ach6Status">未解锁</div>
+      </div>
+      <div class="ach" id="ach10">
+        <div class="icon">★</div>
+        <div class="title">本月高光</div>
+        <div class="desc">幸运值达到 10 点</div>
+        <div class="status" id="ach10Status">未解锁</div>
+      </div>
+    </div>
+
+    <div class="supply-box disabled" id="supplyBox">
+      <h3>月度特别补给</h3>
+      <p id="supplyDesc" style="margin:0 0 10px;font-size:13px;color:var(--muted)">幸运值达到 10 点后解锁。可从 N / R 级实物奖励中任选一件，不消耗抽数，不影响保底。每期仅一次。</p>
+      <div class="row" id="supplyControls" style="display:none">
+        <div>
+          <label for="supplySelect">选择一件 N / R 奖励</label>
+          <select id="supplySelect"></select>
+        </div>
+        <div style="flex:0 0 auto;align-self:flex-end">
+          <button class="secondary" id="claimSupply">领取补给</button>
+        </div>
+      </div>
+      <div id="supplyClaimed" class="hidden" style="font-size:13px;color:var(--gold);margin-top:4px"></div>
+    </div>
+  </section>
+
+  <!-- 奖励池 -->
+  <section class="panel" style="margin-top:14px">
+    <h2>奖励池设置</h2>
+    <p>每行格式：品质|奖励名称。品质使用 N、R、SR、SSR。抽中对应品质时随机选取。</p>
+    <textarea id="rewardEditor" rows="8" placeholder="N|贴纸一枚&#10;R|一杯喜欢的饮料&#10;SR|一本想看的实体书&#10;SSR|心愿清单中的实物"></textarea>
+    <div class="tools">
+      <button id="saveRewards">保存奖励池</button>
+      <button id="restoreRewards">恢复示例奖励池</button>
+    </div>
+  </section>
+
+  <!-- 抽取记录与工具 -->
+  <section class="panel" style="margin-top:14px">
+    <div class="row" style="align-items:center;margin-bottom:8px">
+      <h2 style="margin:0;flex:1">最近抽取记录</h2>
+      <span class="tag" id="drawCount">0 次抽取</span>
+    </div>
+    <div class="log" id="drawLog"><p style="color:var(--muted);margin:0">还没有抽取记录。</p></div>
+    <div class="tools">
+      <button id="exportData">导出备份 JSON</button>
+      <button id="exportCsv">导出抽取记录 CSV</button>
+      <button id="importData">导入备份 JSON</button>
+      <button id="settle">结算并开启新周期</button>
+      <button id="resetAll">清空全部数据</button>
+      <input type="file" id="fileInput" accept=".json,application/json" hidden>
+    </div>
+    <p style="margin-top:12px">数据保存在当前浏览器本地。建议定期导出 JSON 备份；清除浏览器数据或换设备前请先备份。</p>
+  </section>
+
+  <div class="foot">LUCKY DROP 4.0 · 本地运行 · 抽奖结果仅供个人奖励记录<br>SR 保底 50 抽 · 幸运值成就独立 · 月度特别补给不耗抽数</div>
+</main>
+
+<div id="toast"></div>
+
+<script>
+const KEY = 'lucky_drop_4_0_state_v2';
+const SR_PITY_MAX = 50; // 第50抽触发
+
+// 全部使用本地时区，避免 UTC 差一天
+function pad(n){ return String(n).padStart(2,'0'); }
+function formatLocal(d){
+  return d.getFullYear() + '-' + pad(d.getMonth()+1) + '-' + pad(d.getDate());
+}
+const today = () => formatLocal(new Date());
+const addDays = (date, n) => {
+  const d = new Date(date + 'T12:00:00');
+  d.setDate(d.getDate() + n);
+  return formatLocal(d);
+};
+
+// 按自然月（本地时区）
+function getMonthPeriod(baseDate) {
+  const now = baseDate ? new Date(baseDate + 'T12:00:00') : new Date();
+  const y = now.getFullYear();
+  const m = now.getMonth();
+  const start = new Date(y, m, 1);
+  const end = new Date(y, m + 1, 0);
+  return { periodStart: formatLocal(start), periodEnd: formatLocal(end) };
+}
+
+// 检查是否已跨月，必要时自动切换到本月
+function ensureCurrentPeriod() {
+  const now = today();
+  const { periodStart, periodEnd } = getMonthPeriod();
+  // 如果当前保存的周期已经过期（今天 > periodEnd），自动结算并开启新月
+  if (state.periodEnd && now > state.periodEnd) {
+    // 归档旧期
+    state.archives = state.archives || [];
+    state.archives.push({
+      start: state.periodStart,
+      end: state.periodEnd,
+      balance: state.balance,
+      luck: state.luck,
+      srPity: state.srPity,
+      ssrPity: state.ssrPity,
+      actions: state.actions,
+      draws: state.draws,
+      achievements: { ...(state.achievements || {}) },
+      supplyClaimed: !!state.supplyClaimed,
+      supplyItem: state.supplyItem || null,
+      autoSettled: true
+    });
+    // 清零并切换到本月
+    state.balance = 0;
+    state.luck = 0;
+    state.luckByDay = {};
+    state.srPity = 0;
+    state.actions = [];
+    state.draws = [];
+    state.achievements = { a3: false, a6: false, a10: false };
+    state.supplyClaimed = false;
+    state.supplyItem = null;
+    state.periodStart = periodStart;
+    state.periodEnd = periodEnd;
+    // SSR 保底保留
+    return true; // 发生了自动结算
+  }
+  // 如果还没有周期，或周期不对应当前月，直接对齐
+  if (!state.periodStart || !state.periodEnd ||
+      state.periodStart !== periodStart || state.periodEnd !== periodEnd) {
+    // 仅当完全没有数据时直接对齐；有数据但月份不对则上面已经处理
+    if (!state.actions?.length && !state.draws?.length && state.balance === 0 && state.luck === 0) {
+      state.periodStart = periodStart;
+      state.periodEnd = periodEnd;
+    }
+  }
+  return false;
+}
+
+const defaultRewards = [
+  { tier: 'N', name: '无糖口香糖 / 木糖醇薄荷糖一颗' },
+  { tier: 'N', name: '可爱贴纸一枚' },
+  { tier: 'N', name: '好看的中性笔芯一支' },
+  { tier: 'R', name: '一杯想喝的奶茶 / 饮料' },
+  { tier: 'R', name: '一包饼干 / 薯片' },
+  { tier: 'R', name: '小零食一份' },
+  { tier: 'SR', name: '一本想看的实体书 / 漫画' },
+  { tier: 'SR', name: '好看的文具套装' },
+  { tier: 'SR', name: '游戏周边小物（钥匙扣 / 立牌）' },
+  { tier: 'SR', name: '桌面小氛围灯 / 小夜灯' },
+  { tier: 'SSR', name: '想买的游戏礼包' },
+  { tier: 'SSR', name: '想买的游戏周边 / 手办' }
+];
+
+const initial = () => {
+  const { periodStart, periodEnd } = getMonthPeriod();
+  return {
+    version: 2,
+    periodStart,
+    periodEnd,
+    balance: 0,
+    luck: 0,
+    luckByDay: {},
+    ssrPity: 0,
+    srPity: 0,
+    actions: [],
+    draws: [],
+    archives: [],
+    rewards: defaultRewards.slice(),
+    achievements: { a3: false, a6: false, a10: false },
+    supplyClaimed: false,
+    supplyItem: null
+  };
+};
+
+let state;
+try {
+  const raw = JSON.parse(localStorage.getItem(KEY));
+  if (raw && raw.version === 2) {
+    state = raw;
+    // 兼容旧字段
+    if (!state.achievements) state.achievements = { a3: false, a6: false, a10: false };
+    if (state.supplyClaimed === undefined) state.supplyClaimed = false;
+  } else {
+    state = initial();
+  }
+} catch (e) {
+  state = initial();
+}
+
+// 启动时检查是否需要跨月自动结算 / 对齐本月
+let autoSettledOnLoad = false;
+try {
+  autoSettledOnLoad = ensureCurrentPeriod();
+  if (autoSettledOnLoad) {
+    localStorage.setItem(KEY, JSON.stringify(state));
+  }
+} catch (e) {
+  console.warn('period check failed', e);
+}
+
+function save() {
+  localStorage.setItem(KEY, JSON.stringify(state));
+  render();
+}
+
+function toast(msg) {
+  const el = document.getElementById('toast');
+  el.textContent = msg;
+  el.classList.add('show');
+  clearTimeout(window.__toastTimer);
+  window.__toastTimer = setTimeout(() => el.classList.remove('show'), 2400);
+}
+
+function escapeHtml(s) {
+  return String(s).replace(/[&<>"']/g, c => ({
+    '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
+  }[c]));
+}
+
+function pityProb(next) {
+  if (next <= 150) return 0.003;
+  const nodes = [
+    [150, 0.003], [151, 0.004], [160, 0.008], [170, 0.015],
+    [180, 0.03], [185, 0.05], [190, 0.10], [195, 0.20],
+    [199, 0.50], [200, 1]
+  ];
+  if (next >= 200) return 1;
+  for (let i = 1; i < nodes.length; i++) {
+    const [x1, y1] = nodes[i - 1];
+    const [x2, y2] = nodes[i];
+    if (next <= x2) return y1 + (y2 - y1) * (next - x1) / (x2 - x1);
+  }
+  return 1;
+}
+
+function pickReward(tier) {
+  const pool = (state.rewards || defaultRewards).filter(x => x.tier === tier).map(x => x.name);
+  if (!pool.length) return '请在奖励池中添加 ' + tier + ' 级奖励';
+  return pool[Math.floor(Math.random() * pool.length)];
+}
+
+function doOne() {
+  if (state.balance < 1) return null;
+  state.balance--;
+  const next = state.ssrPity + 1;
+  const p = pityProb(next);
+  let tier;
+  const r = Math.random();
+
+  // 先判 SSR
+  if (r < p) {
+    tier = 'SSR';
+  } else if (state.srPity + 1 >= SR_PITY_MAX) {
+    // SR 硬保底
+    tier = 'SR';
+  } else if (r < p + 0.005) {
+    tier = 'SR';
+  } else if (r < p + 0.005 + 0.135) {
+    tier = 'R';
+  } else {
+    tier = 'N';
+  }
+
+  const reward = pickReward(tier);
+
+  if (tier === 'SSR') {
+    state.ssrPity = 0;
+    state.srPity = 0;
+  } else {
+    state.ssrPity = next;
+    if (tier === 'SR') state.srPity = 0;
+    else state.srPity = state.srPity + 1;
+  }
+
+  const record = {
+    date: today(),
+    tier,
+    reward,
+    p: ssrPercent(p),
+    ssrAfter: state.ssrPity,
+    srAfter: state.srPity,
+    number: state.draws.length + 1
+  };
+  state.draws.unshift(record);
+  return record;
+}
+
+function ssrPercent(p) {
+  return (p * 100).toFixed(p < 0.01 ? 2 : 1) + '%';
+}
+
+function updateAchievements() {
+  const luck = state.luck;
+  let newly = [];
+  if (luck >= 3 && !state.achievements.a3) {
+    state.achievements.a3 = true;
+    newly.push('初露锋芒');
+  }
+  if (luck >= 6 && !state.achievements.a6) {
+    state.achievements.a6 = true;
+    newly.push('稳步前行');
+  }
+  if (luck >= 10 && !state.achievements.a10) {
+    state.achievements.a10 = true;
+    newly.push('本月高光');
+  }
+  return newly;
+}
+
+function getNRRewards() {
+  return (state.rewards || defaultRewards).filter(x => x.tier === 'N' || x.tier === 'R');
+}
+
+function render() {
+  // 顶部数据
+  document.getElementById('balance').innerHTML = state.balance + '<span class="unit">抽</span>';
+  document.getElementById('luck').innerHTML = state.luck + '<span class="unit">/ 10</span>';
+  document.getElementById('ssr').innerHTML = state.ssrPity + '<span class="unit">/ 200</span>';
+  document.getElementById('sr').innerHTML = state.srPity + '<span class="unit">/ 50</span>';
+  document.getElementById('ssrBar').style.width = Math.min(100, state.ssrPity / 200 * 100) + '%';
+  document.getElementById('srBar').style.width = Math.min(100, state.srPity / SR_PITY_MAX * 100) + '%';
+  const t = today();
+  let periodText = state.periodStart + ' 至 ' + state.periodEnd;
+  if (t > state.periodEnd) periodText += '（已过期，请结算）';
+  else if (t === state.periodEnd) periodText += ' · 今天最后一天';
+  else {
+    const remain = Math.max(0, Math.round((new Date(state.periodEnd+'T12:00:00') - new Date(t+'T12:00:00')) / 86400000));
+    periodText += ' · 剩 ' + remain + ' 天';
+  }
+  document.getElementById('periodLabel').textContent = periodText;
+
+  // 按钮状态
+  document.getElementById('rollOne').disabled = state.balance < 1;
+  document.getElementById('rollTen').disabled = state.balance < 10;
+  document.getElementById('drawCount').textContent = state.draws.length + ' 次抽取';
+
+  // 奖励池编辑器
+  const editor = document.getElementById('rewardEditor');
+  if (editor && document.activeElement !== editor) {
+    editor.value = (state.rewards || defaultRewards).map(x => x.tier + '|' + x.name).join('\n');
+  }
+
+  // 行动日志
+  document.getElementById('actionLog').innerHTML = state.actions.length
+    ? state.actions.slice(0, 25).map(a =>
+        `<div class="entry">
+          <span>${escapeHtml(a.text)}<br>
+          <small style="color:var(--muted)">${a.date}${a.luck ? ' · +' + a.luck + ' 幸运值' : ''}</small></span>
+          <b>+${a.pulls}抽</b>
+        </div>`).join('')
+    : '<p style="color:var(--muted);margin:0">还没有记录。</p>';
+
+  // 抽取日志
+  document.getElementById('drawLog').innerHTML = state.draws.length
+    ? state.draws.slice(0, 30).map(d =>
+        `<div class="entry">
+          <span><b>${d.tier}</b> · ${escapeHtml(d.reward)}<br>
+          <small style="color:var(--muted)">${d.date} · SSR概率 ${d.p} · SSR ${d.ssrAfter}/200 · SR ${d.srAfter}/50</small></span>
+          <span class="tag">${d.number}号</span>
+        </div>`).join('')
+    : '<p style="color:var(--muted);margin:0">还没有抽取记录。</p>';
+
+  // 成就
+  const setAch = (id, unlocked, lockedText, unlockedText) => {
+    const el = document.getElementById(id);
+    const st = document.getElementById(id + 'Status');
+    if (unlocked) {
+      el.classList.add('unlocked');
+      st.textContent = unlockedText || '已解锁';
+    } else {
+      el.classList.remove('unlocked');
+      st.textContent = lockedText || '未解锁';
+    }
+  };
+  setAch('ach3', state.achievements.a3, '未解锁', '已解锁 · 成就标记');
+  setAch('ach6', state.achievements.a6, '未解锁', '已解锁 · 成就标记');
+  setAch('ach10', state.achievements.a10, '未解锁', state.supplyClaimed ? '已解锁 · 补给已领取' : '已解锁 · 可领取补给');
+
+  // 月度特别补给
+  const box = document.getElementById('supplyBox');
+  const controls = document.getElementById('supplyControls');
+  const claimedEl = document.getElementById('supplyClaimed');
+  const desc = document.getElementById('supplyDesc');
+
+  if (state.achievements.a10) {
+    box.classList.remove('disabled');
+    if (state.supplyClaimed) {
+      controls.style.display = 'none';
+      claimedEl.classList.remove('hidden');
+      claimedEl.textContent = '已领取：' + (state.supplyItem || '一件 N/R 奖励');
+      desc.textContent = '本月特别补给已领取。';
+    } else {
+      controls.style.display = 'flex';
+      claimedEl.classList.add('hidden');
+      desc.textContent = '可从下方 N / R 级奖励中任选一件领取。不消耗抽数，不影响保底。每期仅一次。';
+      // 填充选项
+      const sel = document.getElementById('supplySelect');
+      const nr = getNRRewards();
+      sel.innerHTML = nr.length
+        ? nr.map(r => `<option value="${escapeHtml(r.tier + '|' + r.name)}">${r.tier} · ${escapeHtml(r.name)}</option>`).join('')
+        : '<option value="">请先在奖励池添加 N 或 R 级奖励</option>';
+    }
+  } else {
+    box.classList.add('disabled');
+    controls.style.display = 'none';
+    claimedEl.classList.add('hidden');
+    desc.textContent = '幸运值达到 10 点后解锁。可从 N / R 级实物奖励中任选一件，不消耗抽数，不影响保底。每期仅一次。';
+  }
+}
+
+// 记录进步
+document.getElementById('addAction').onclick = () => {
+  const text = document.getElementById('actionText').value.trim();
+  if (!text) {
+    toast('先写下你完成了什么');
+    return;
+  }
+  const pulls = Number(document.getElementById('actionTier').value);
+  const wanted = Number(document.getElementById('luckAdd').value);
+  const day = today();
+  const already = state.luckByDay[day] || 0;
+  const actual = Math.min(wanted, 3 - already, 10 - state.luck);
+
+  state.balance += pulls;
+  state.luck += actual;
+  state.luckByDay[day] = already + actual;
+  state.actions.unshift({ date: day, text, pulls, luck: actual });
+
+  const newly = updateAchievements();
+  document.getElementById('actionText').value = '';
+  document.getElementById('luckAdd').value = '0';
+  save();
+
+  let msg = `+${pulls} 抽`;
+  if (actual > 0) msg += ` · +${actual} 幸运值`;
+  if (newly.length) msg += ' · 解锁成就：' + newly.join('、');
+  toast(msg);
+};
+
+function roll(n) {
+  if (state.balance < n) return;
+  const results = [];
+  for (let i = 0; i < n; i++) {
+    const x = doOne();
+    if (x) results.push(x);
+  }
+  const last = results[results.length - 1];
+  const orb = document.getElementById('orb');
+  orb.classList.remove('spin');
+  void orb.offsetWidth;
+  orb.classList.add('spin');
+
+  if (results.length === 1) {
+    document.getElementById('result').textContent = `${last.tier} · ${last.reward}`;
+  } else {
+    const c = {
+      SSR: results.filter(x => x.tier === 'SSR').length,
+      SR: results.filter(x => x.tier === 'SR').length,
+      R: results.filter(x => x.tier === 'R').length,
+      N: results.filter(x => x.tier === 'N').length
+    };
+    document.getElementById('result').textContent =
+      `${results.length} 连完成：SSR ${c.SSR} · SR ${c.SR} · R ${c.R} · N ${c.N}`;
+  }
+  orb.textContent = last.tier;
+  save();
+}
+
+document.getElementById('rollOne').onclick = () => roll(1);
+document.getElementById('rollTen').onclick = () => roll(10);
+
+// 领取月度特别补给
+document.getElementById('claimSupply').onclick = () => {
+  if (!state.achievements.a10 || state.supplyClaimed) return;
+  const val = document.getElementById('supplySelect').value;
+  if (!val) {
+    toast('请先选择一件奖励');
+    return;
+  }
+  const [tier, ...rest] = val.split('|');
+  const name = rest.join('|');
+  state.supplyClaimed = true;
+  state.supplyItem = `${tier} · ${name}`;
+  save();
+  toast('已领取月度特别补给：' + name);
+};
+
+// 奖励池
+document.getElementById('saveRewards').onclick = () => {
+  const lines = document.getElementById('rewardEditor').value.split(/\r?\n/).map(x => x.trim()).filter(Boolean);
+  const parsed = [];
+  for (const line of lines) {
+    const i = line.indexOf('|');
+    if (i < 1) continue;
+    const tier = line.slice(0, i).trim().toUpperCase();
+    const name = line.slice(i + 1).trim();
+    if (['N', 'R', 'SR', 'SSR'].includes(tier) && name) parsed.push({ tier, name });
+  }
+  if (!parsed.length) {
+    toast('请至少添加一条有效奖励（格式：N|名称）');
+    return;
+  }
+  state.rewards = parsed;
+  save();
+  toast('奖励池已保存');
+};
+
+document.getElementById('restoreRewards').onclick = () => {
+  state.rewards = defaultRewards.slice();
+  save();
+  toast('已恢复示例奖励池');
+};
+
+// 导出 / 导入
+document.getElementById('exportData').onclick = () => {
+  const blob = new Blob([JSON.stringify(state, null, 2)], { type: 'application/json' });
+  download(blob, 'lucky_drop_backup_' + today() + '.json');
+};
+
+document.getElementById('exportCsv').onclick = () => {
+  const rows = [
+    ['序号', '日期', '品质', '奖励', 'SSR概率', '抽后SSR进度', '抽后SR进度'],
+    ...state.draws.slice().reverse().map((d, i) => [i + 1, d.date, d.tier, d.reward, d.p, d.ssrAfter, d.srAfter])
+  ];
+  const csv = '\ufeff' + rows.map(r => r.map(v => '"' + String(v).replace(/"/g, '""') + '"').join(',')).join('\n');
+  download(new Blob([csv], { type: 'text/csv;charset=utf-8' }), 'lucky_drop_draws_' + today() + '.csv');
+};
+
+function download(blob, name) {
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = name;
+  a.click();
+  URL.revokeObjectURL(a.href);
+}
+
+document.getElementById('importData').onclick = () => document.getElementById('fileInput').click();
+document.getElementById('fileInput').onchange = async e => {
+  const f = e.target.files[0];
+  if (!f) return;
+  try {
+    const d = JSON.parse(await f.text());
+    if (!d || (d.version !== 1 && d.version !== 2)) throw new Error();
+    // 升级旧版本
+    if (d.version === 1) {
+      d.version = 2;
+      d.achievements = d.achievements || { a3: false, a6: false, a10: false };
+      d.supplyClaimed = d.supplyClaimed || false;
+      d.supplyItem = d.supplyItem || null;
+      // 旧版 SR 进度按比例粗略迁移（可选）
+      if (d.srPity > 10) d.srPity = Math.min(49, Math.round(d.srPity * 5));
+    }
+    state = d;
+    save();
+    toast('备份导入成功');
+  } catch (err) {
+    toast('文件格式不正确，未能导入');
+  }
+  e.target.value = '';
+};
+
+// 结算
+document.getElementById('settle').onclick = () => {
+  if (!confirm('确认结束本期？\n\n未抽数、幸运值、SR 保底、成就进度将清零；\n· SSR 保底进度和历史记录保留。')) return;
+  state.archives.push({
+    start: state.periodStart,
+    end: state.periodEnd,
+    balance: state.balance,
+    luck: state.luck,
+    srPity: state.srPity,
+    ssrPity: state.ssrPity,
+    actions: state.actions,
+    draws: state.draws,
+    achievements: { ...state.achievements },
+    supplyClaimed: state.supplyClaimed,
+    supplyItem: state.supplyItem
+  });
+  // 清零
+  state.balance = 0;
+  state.luck = 0;
+  state.luckByDay = {};
+  state.srPity = 0;
+  state.actions = [];
+  state.draws = [];
+  state.achievements = { a3: false, a6: false, a10: false };
+  state.supplyClaimed = false;
+  state.supplyItem = null;
+  // 开启下月（本地时区）
+  const end = new Date(state.periodEnd + 'T12:00:00');
+  end.setDate(end.getDate() + 1);
+  const next = getMonthPeriod(formatLocal(end));
+  state.periodStart = next.periodStart;
+  state.periodEnd = next.periodEnd;
+  save();
+  document.getElementById('result').textContent = '新周期已开启';
+  toast('已结算并开启新周期');
+};
+
+document.getElementById('resetAll').onclick = () => {
+  if (!confirm('这会删除当前浏览器中的全部记录（含 SSR 长期保底）。\n建议先导出备份。确定继续吗？')) return;
+  state = initial();
+  save();
+  document.getElementById('result').textContent = '已重置';
+  toast('全部数据已清空');
+};
+
+// 初始渲染
+render();
+if (typeof autoSettledOnLoad !== 'undefined' && autoSettledOnLoad) {
+  setTimeout(() => toast('检测到已跨月，已自动结算并开启本月周期'), 400);
+}
+</script>
+</body>
+</html>
